@@ -13,23 +13,8 @@ public class Server
 		byte peticion[] = new byte[1000];
 		Key llave = null;
 
-		try{
-			ObjectInput in = new ObjectInputStream(new FileInputStream("key.ser"));
-			llave = (Key)in.readObject();
-			System.out.println( "llave=" + llave );
-			in.close();
-		}catch(IOException e){
-			System.out.println( "Generando la llave en el Servidor..." );
-			KeyGenerator keyGen = KeyGenerator.getInstance("DES");
-			keyGen.init(56);
-			llave = keyGen.generateKey();
-			System.out.println( "llave=" + llave );
-			System.out.println( "Llave generada!" );
-
-			ObjectOutput out = new ObjectOutputStream(new FileOutputStream("key.ser"));
-			out.writeObject( llave );
-			out.close();
-		}
+		Transmission transmission= new Transmission();
+		transmission.createkey();
 
 		try
 		{
@@ -57,15 +42,11 @@ public class Server
 				BufferedReader br = new BufferedReader( new InputStreamReader( System.in ) );
 				// Como el Cliente escribe, yo debo leer
 
-				int byteLength = dis.readInt(); // now I know how many bytes to read
-				byte[] theBytes = new byte[byteLength];
-				dis.readFully(theBytes);
-				System.out.println( "Descifrando el mensaje ..." );
 
-				Cipher cifrar = Cipher.getInstance("DES");
-				cifrar.init(Cipher.DECRYPT_MODE, llave);
-				byte[] newPlainText = cifrar.doFinal( theBytes );
-				System.out.println( new String(newPlainText, "UTF8") );
+				byte[] theBytes =  transmission.receiveMessage(dis);
+				String msg= transmission.decrypt(theBytes);
+				System.out.println(msg);
+
 				dos.close();
 				dis.close();
 				socket.close();

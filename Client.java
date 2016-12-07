@@ -6,23 +6,14 @@ import javax.crypto.*;
 public class Client
 {
 
-	private static Key key = null;
-
 	public static void main(String a[]) throws Exception
 	{
 		Socket socket = null;
 		String request = "";
 
-		Client client = new Client();
-
-		ObjectInput in = new ObjectInputStream(new FileInputStream("key.ser"));
-		client.key = (Key)in.readObject();
-
-		System.out.println( "llave=" + client.key);
-		in.close();
-
 		Transmission transmission = new Transmission();
-		transmission.sayHello();
+
+		transmission.readkey();
 
 		try
 		{
@@ -35,9 +26,9 @@ public class Client
 			BufferedReader br = new BufferedReader( new InputStreamReader( System.in ) );
 			request = br.readLine();
 
-			byte[] encrypted = client.encrypt(request);
+			byte[] encrypted = transmission.encrypt(request);
 			if(encrypted != null){
-				client.sendMessage(dos, encrypted);
+				transmission.sendMessage(dos, encrypted);
 			}else{
 				System.out.println("Conexión insegura");
 			}
@@ -53,52 +44,5 @@ public class Client
 		}
 	}
 
-	public byte[] encrypt(String request){
-		System.out.println( "Cifrando mensaje... " );
-		byte[] arrayRequest = request.getBytes();
-		try{
-			Cipher cifrar = Cipher.getInstance("DES");
-			cifrar.init(Cipher.ENCRYPT_MODE, this.key);
-			byte[] cipherText = cifrar.doFinal( arrayRequest );
-			return cipherText;
-		}catch(Exception e){
-			System.out.println("Encrypt Error");
-			return null;
-		}
-	}
-
-	public String decrypt(byte[] theBytes){
-		try{
-			Cipher cifrar = Cipher.getInstance("DES");
-			cifrar.init(Cipher.DECRYPT_MODE, this.key);
-			byte[] newPlainText = cifrar.doFinal( theBytes );
-		return new String(newPlainText, "UTF8") ;
-		}catch(Exception e){
-			System.out.println("Decrypt Error");
-			return null;
-		}
-	}
-
-	public void sendMessage(DataOutputStream dos, byte[] cipherText){
-		try{
-			String string = new String(cipherText);
-			dos.writeInt(cipherText.length);
-			dos.write(cipherText);
-		}catch(IOException e){
-			System.out.println(e);
-		}
-	}
-
-	public byte[] receiveMessage(DataInputStream dis){
-		try{
-			int byteLength = dis.readInt(); // now I know how many bytes to read
-			byte[] theBytes = new byte[byteLength];
-			dis.readFully(theBytes);
-			return theBytes;
-		}catch(IOException e){
-			System.out.println(e);
-			return null;
-		}
-	}
 
 }
