@@ -6,23 +6,11 @@ import javax.crypto.*;
 public class Transmission
 {
   private static Key key = null;
+  private static Cipher cifrar = null;
 
-  public void sayHello(){
-    System.out.println("Hello World **** ");
-  }
-
-  public byte[] encrypt(String request){
-    System.out.println( "Cifrando mensaje... " );
-    byte[] arrayRequest = request.getBytes();
-    try{
-      Cipher cifrar = Cipher.getInstance("DES");
-      cifrar.init(Cipher.ENCRYPT_MODE, this.key);
-      byte[] cipherText = cifrar.doFinal( arrayRequest );
-      return cipherText;
-    }catch(Exception e){
-      System.out.println("Encrypt Error");
-      return null;
-    }
+  public Transmission()throws Exception{
+    System.out.println("conectando ...");
+    this.cifrar = Cipher.getInstance("DES");
   }
 
 public void createkey() throws Exception{
@@ -58,14 +46,22 @@ public void readkey()throws Exception{
   }
 }
 
-
+public byte[] encrypt(String request){
+  byte[] arrayRequest = request.getBytes();
+  try{
+    this.cifrar.init(Cipher.ENCRYPT_MODE, this.key);
+    byte[] cipherText = this.cifrar.doFinal( arrayRequest );
+    return cipherText;
+  }catch(Exception e){
+    System.out.println("Encrypt Error");
+    return null;
+  }
+}
 
   public String decrypt(byte[] theBytes){
-    	System.out.println( "Descifrando el mensaje ..." );
     try{
-      Cipher cifrar = Cipher.getInstance("DES");
-      cifrar.init(Cipher.DECRYPT_MODE, this.key);
-      byte[] newPlainText = cifrar.doFinal( theBytes );
+      this.cifrar.init(Cipher.DECRYPT_MODE, this.key);
+      byte[] newPlainText = this.cifrar.doFinal( theBytes );
     return new String(newPlainText, "UTF8") ;
     }catch(Exception e){
       System.out.println(e);

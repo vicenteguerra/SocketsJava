@@ -69,6 +69,16 @@ public class CuentaHabiente implements Serializable{
         this.postalcode = postalcode;
     }
 
+    public void deposit(Float amount)throws Exception{
+      this.balance += amount;
+      this.save();
+    }
+
+    public void withdraw(Float amount)throws Exception{
+      this.balance -= amount;
+      this.save();
+    }
+
     public void save()throws Exception{
       try{
         ObjectOutput out = new ObjectOutputStream(new FileOutputStream(Integer.toString(this.account) + ".dat"));

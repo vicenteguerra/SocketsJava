@@ -2,6 +2,7 @@ import java.net.*;
 import java.io.*;
 import java.security.*;
 import javax.crypto.*;
+import java.util.*;
 
 public class Server
 {
@@ -12,6 +13,9 @@ public class Server
 		// Peticion es lo que envia el Cliente
 		byte peticion[] = new byte[1000];
 		Key llave = null;
+		String word = null;
+		boolean exit = false;
+		String response = "";
 
 		Transmission transmission= new Transmission();
 		transmission.createkey();
@@ -32,8 +36,7 @@ public class Server
 		}
 
 		System.out.println("Esperando a que los clientes se conecten...");
-		while(true)
-		{
+
 			try
 			{
 				socket = serverSocket.accept();
@@ -42,27 +45,46 @@ public class Server
 				DataInputStream dis = new DataInputStream( socket.getInputStream() );
 				DataOutputStream dos = new DataOutputStream( socket.getOutputStream() );
 				// Despues de la conexion, Servidor y Cliente deben ponerse de acuerdo
-				// para ver quien escribe primero y entonces el otro debe leer
 				BufferedReader br = new BufferedReader( new InputStreamReader( System.in ) );
 				// Como el Cliente escribe, yo debo leer
 				String msg = "";
 
-				while (!msg.equals("exit")){
+				while (!exit){
 					byte[] theBytes =  transmission.receiveMessage(dis);
 					msg = transmission.decrypt(theBytes);
 					System.out.println(msg);
 
-					// Tokenizamos
-					// Switch
-					
-					String response = "Hola " + clientAccount.getName();
+					StringTokenizer st = new StringTokenizer(msg);
+					while(st.hasMoreTokens()){
+						word = st.nextToken().toUpperCase();
+						switch(word){
+							case "CONSULTAR":
+								response = "Saldo: " + clientAccount.getBalance();
+							break;
+							case "DEPOSITAR":
+								word = st.nextToken();
+								clientAccount.deposit(Float.parseFloat(word));
+								response = "Depositado: " + word;
+							break;
+							case "RETIRAR":
+								word = st.nextToken();
+								clientAccount.withdraw(Float.parseFloat(word));
+								response = "Retirado: " + word;
+							break;
+							case "SALIR":
+								exit = true;
+							break;
+							default:
+								response = "Hola, puedes decirlo de otra forma por favor";
+							break;
+						}
+					}
 					byte[] encrypted = transmission.encrypt(response);
 					transmission.sendMessage(dos, encrypted);
 				}
 				dos.close();
 				dis.close();
 				socket.close();
-
 			}
 			catch(IOException e)
 			{
@@ -71,7 +93,6 @@ public class Server
 			}
 
 
-		}
 	}
 
 }

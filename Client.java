@@ -26,14 +26,14 @@ public class Client
 			// Ya que me conecte con el Servidor, debo leer del teclado para despues eso mismo enviarlo al Servidor
 
 			BufferedReader br = new BufferedReader( new InputStreamReader( System.in ) );
-			while (!request.equals("exit")){
+			while (!request.toUpperCase().equals("SALIR")){
 				request = br.readLine();
 				byte[] encrypted = transmission.encrypt(request);
 				if(encrypted != null){
 					transmission.sendMessage(dos, encrypted);
 					byte[] theBytes =  transmission.receiveMessage(dis);
 					msgServer = transmission.decrypt(theBytes);
-					System.out.println("🤖" + msgServer);
+					System.out.println("🤖  " + msgServer);
 				}else{
 					System.out.println("Conexión insegura");
 				}
