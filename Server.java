@@ -41,21 +41,28 @@ public class Server
 				// para ver quien escribe primero y entonces el otro debe leer
 				BufferedReader br = new BufferedReader( new InputStreamReader( System.in ) );
 				// Como el Cliente escribe, yo debo leer
+				String msg = "";
 
-
-				byte[] theBytes =  transmission.receiveMessage(dis);
-				String msg= transmission.decrypt(theBytes);
-				System.out.println(msg);
-
+				while (!msg.equals("exit")){
+					byte[] theBytes =  transmission.receiveMessage(dis);
+					msg = transmission.decrypt(theBytes);
+					System.out.println(msg);
+					String response = "Lalala";
+					byte[] encrypted = transmission.encrypt(response);
+					transmission.sendMessage(dos, encrypted);
+				}
 				dos.close();
 				dis.close();
 				socket.close();
+
 			}
 			catch(IOException e)
 			{
 				System.out.println("java.io.IOException generada");
 				e.printStackTrace();
 			}
+
+
 		}
 	}
 
