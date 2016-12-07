@@ -16,6 +16,10 @@ public class Server
 		Transmission transmission= new Transmission();
 		transmission.createkey();
 
+		CuentaHabiente clientAccount = new CuentaHabiente(123);
+		clientAccount.setName("Zamitis");
+		clientAccount.save();
+
 		try
 		{
 			System.out.println("Escuchando por el puerto 8000");
@@ -47,7 +51,11 @@ public class Server
 					byte[] theBytes =  transmission.receiveMessage(dis);
 					msg = transmission.decrypt(theBytes);
 					System.out.println(msg);
-					String response = "Lalala";
+
+					// Tokenizamos
+					// Switch
+					
+					String response = "Hola " + clientAccount.getName();
 					byte[] encrypted = transmission.encrypt(response);
 					transmission.sendMessage(dos, encrypted);
 				}
