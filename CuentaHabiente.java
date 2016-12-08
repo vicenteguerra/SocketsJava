@@ -24,6 +24,7 @@ public class CuentaHabiente implements Serializable{
         } catch (FileNotFoundException e) {
             ObjectOutput out = new ObjectOutputStream(new FileOutputStream(Integer.toString(account) + ".dat"));
             this.account = account;
+            this.name = null;
             out.writeObject( this );
             out.close();
         }

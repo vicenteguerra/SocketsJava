@@ -17,7 +17,6 @@ public void createkey() throws Exception{
     try{
       ObjectInput in = new ObjectInputStream(new FileInputStream("key.ser"));
       this.key = (Key)in.readObject();
-      System.out.println( "llave=" + this.key );
       in.close();
     }catch(IOException e){
       System.out.println( "Generando la llave en el Servidor..." );
@@ -90,6 +89,4 @@ public byte[] encrypt(String request){
       return null;
     }
   }
-
-
 }

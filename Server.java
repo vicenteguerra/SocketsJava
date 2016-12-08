@@ -16,32 +16,28 @@ public class Server
 		String word = null;
 		boolean exit = false;
 		String response = "";
+		int port = 8000;
 
 		Transmission transmission= new Transmission();
 		transmission.createkey();
 
-		CuentaHabiente clientAccount = new CuentaHabiente(123);
-		clientAccount.setName("Zamitis");
-		clientAccount.save();
-
 		try
 		{
-			System.out.println("Escuchando por el puerto 8000");
-			serverSocket = new ServerSocket(8000);
+			System.out.println("Escuchando por el puerto "+ Integer.toString(port));
+			serverSocket = new ServerSocket(port);
 		}
 		catch(IOException e)
 		{
 			System.out.println("java.io.IOException generada");
 			e.printStackTrace();
 		}
-
 		System.out.println("Esperando a que los clientes se conecten...");
-
 			try
 			{
 				socket = serverSocket.accept();
-				System.out.println("Se conecto un cliente: " + socket.getInetAddress().getHostName());
+				System.out.println("Se conectó el cliente: "+ socket.getInetAddress().getHostName());
 				// Como ya hay socket, obtengo los flujos asociados a este
+
 				DataInputStream dis = new DataInputStream( socket.getInputStream() );
 				DataOutputStream dos = new DataOutputStream( socket.getOutputStream() );
 				// Despues de la conexion, Servidor y Cliente deben ponerse de acuerdo
@@ -49,8 +45,24 @@ public class Server
 				// Como el Cliente escribe, yo debo leer
 				String msg = "";
 
+				byte[] theBytes =  transmission.receiveMessage(dis);
+				msg = transmission.decrypt(theBytes);
+				CuentaHabiente clientAccount = new CuentaHabiente(Integer.parseInt(msg));
+				if(clientAccount.getName() == null){
+					byte[] encrypted = transmission.encrypt("FAIL");
+					transmission.sendMessage(dos, encrypted);
+					theBytes =  transmission.receiveMessage(dis);
+					msg = transmission.decrypt(theBytes);
+					clientAccount.setName(msg);
+					encrypted = transmission.encrypt("Bienvenido " + msg);
+					transmission.sendMessage(dos, encrypted);
+				}else{
+					byte[] encrypted = transmission.encrypt("Bienvenido " + clientAccount.getName());
+					transmission.sendMessage(dos, encrypted);
+				}
+
 				while (!exit){
-					byte[] theBytes =  transmission.receiveMessage(dis);
+					theBytes =  transmission.receiveMessage(dis);
 					msg = transmission.decrypt(theBytes);
 					System.out.println(msg);
 
@@ -91,8 +103,5 @@ public class Server
 				System.out.println("java.io.IOException generada");
 				e.printStackTrace();
 			}
-
-
 	}
-
 }
